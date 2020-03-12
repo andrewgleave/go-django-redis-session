@@ -1,4 +1,4 @@
-package session
+package drsession
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 
 func TestParse(t *testing.T) {
 	value := "YWFiYjp7ImEiOiJhIn0="
-	c := PyRedisSessionClient{}
+	c := SessionClient{}
 	p, err := c.parseSession(value)
 	if err != nil {
 		t.Errorf("failed to parse session: %v", err)
@@ -34,7 +34,7 @@ func TestGetSession(t *testing.T) {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	}
-	c, err := NewPyRedisSessionClient(options)
+	c, err := NewSessionClient(options)
 	if err != nil {
 		t.Errorf("failed to connect to redis: %v", err)
 	}
@@ -51,7 +51,7 @@ func TestGetNoSession(t *testing.T) {
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	}
-	c, err := NewPyRedisSessionClient(options)
+	c, err := NewSessionClient(options)
 	if err != nil {
 		t.Errorf("failed to connect to redis: %v", err)
 	}

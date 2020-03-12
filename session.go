@@ -1,4 +1,4 @@
-package session
+package drsession
 
 import (
 	"bytes"
@@ -22,23 +22,23 @@ var (
 	ErrEmptySession = errors.New("Empty session")
 )
 
-// PyRedisSessionClient provides GET and SET operations against Django Redis sessions
-type PyRedisSessionClient struct {
+// SessionClient provides GET and SET operations against Django Redis sessions
+type SessionClient struct {
 	client *redis.Client
 }
 
-// NewPyRedisSessionClient returns a new instance of PyRedisSessionClient
-func NewPyRedisSessionClient(options redis.Options) (*PyRedisSessionClient, error) {
-	client := redis.NewClient(&options)
-	_, err := client.Ping().Result()
+// NewSessionClient returns a new instance of SessionClient
+func NewSessionClient(options redis.Options) (*SessionClient, error) {
+	c := redis.NewClient(&options)
+	_, err := c.Ping().Result()
 	if err != nil {
 		return nil, err
 	}
-	return &PyRedisSessionClient{client}, nil
+	return &SessionClient{c}, nil
 }
 
 // Get returns the unmarshalled JSON stored in key's session
-func (c *PyRedisSessionClient) Get(key string) (map[string]interface{}, error) {
+func (c *SessionClient) Get(key string) (map[string]interface{}, error) {
 	val, err := c.client.Get(key).Result()
 	if err == redis.Nil {
 		return nil, ErrSessionNotFound
@@ -48,7 +48,7 @@ func (c *PyRedisSessionClient) Get(key string) (map[string]interface{}, error) {
 	return c.parseSession(val)
 }
 
-func (c *PyRedisSessionClient) parseSession(val string) (map[string]interface{}, error) {
+func (c *SessionClient) parseSession(val string) (map[string]interface{}, error) {
 	if len(val) == 0 {
 		return nil, ErrEmptySession
 	}
