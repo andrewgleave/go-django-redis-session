@@ -9,17 +9,17 @@ import (
 	"github.com/go-redis/redis/v7"
 )
 
-func TestParse(t *testing.T) {
-	value := "YWFiYjp7ImEiOiJhIn0="
+func TestParseSession(t *testing.T) {
+	val := "YWFiYjp7ImEiOiJhIn0="
 	c := SessionClient{}
-	p, err := c.parseSession(value)
+	p, err := c.parseSession(val)
 	if err != nil {
 		t.Errorf("failed to parse session: %v", err)
 	}
 
-	wantJSON := "{\"a\":\"a\"}"
+	target := "{\"a\":\"a\"}"
 	m := make(map[string]interface{})
-	if err := json.Unmarshal([]byte(wantJSON), &m); err != nil {
+	if err := json.Unmarshal([]byte(target), &m); err != nil {
 		t.Errorf("failed to unmarshal JSON: %v", err)
 	}
 
@@ -45,7 +45,7 @@ func TestGetSession(t *testing.T) {
 	}
 }
 
-func TestGetNoSession(t *testing.T) {
+func TestNoSession(t *testing.T) {
 	options := redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set

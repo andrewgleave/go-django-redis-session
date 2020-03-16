@@ -11,18 +11,17 @@ import (
 )
 
 var (
-	payloadSep = []byte{':'}
-
-	// ErrSessionNotFound will be returned if the session key is not found in Redis
+	// ErrSessionNotFound will be returned if the session is not found in Redis
 	ErrSessionNotFound = errors.New("Session not found")
 	// ErrInvalidPayload suggests the payload stored in the session does not conform to the
-	// expected format e.g. not JSON
+	// expected format i.e. not JSON
 	ErrInvalidPayload = errors.New("Invalid payload")
-	// ErrEmptySession will be returned if the session is empty
+	// ErrEmptySession will be returned if the session is empty (no value)
 	ErrEmptySession = errors.New("Empty session")
 )
 
-// SessionClient provides GET and SET operations against Django Redis sessions
+// SessionClient provides provides simple retrieval and deserialisation support for
+// JSON serialised Djagno sessions stored in Redis
 type SessionClient struct {
 	client *redis.Client
 }
@@ -40,7 +39,7 @@ func NewSessionClient(options redis.Options) (*SessionClient, error) {
 // Get returns the unmarshalled JSON stored in key's session
 func (c *SessionClient) Get(key string) (map[string]interface{}, error) {
 	val, err := c.client.Get(key).Result()
-	if err == redis.Nil {
+	if errors.Is(err, redis.Nil) {
 		return nil, ErrSessionNotFound
 	} else if err != nil {
 		return nil, err
@@ -54,19 +53,20 @@ func (c *SessionClient) parseSession(val string) (map[string]interface{}, error)
 	}
 
 	// decoded should be in the form: uuid:json
-	decoded, err := base64.StdEncoding.DecodeString(val)
+	dec, err := base64.StdEncoding.DecodeString(val)
 	if err != nil {
 		return nil, err
 	}
 
-	idx := bytes.Index(decoded, payloadSep)
+	sep := []byte{':'}
+	idx := bytes.Index(dec, sep)
 	if idx == -1 {
 		return nil, ErrInvalidPayload
 	}
 
-	// we only care about the json portion
-	data := decoded[idx+1:]
-	payload := make(map[string]interface{})
+	// we only care about the json...
+	data := dec[idx+1:]
+	var payload map[string]interface{}
 	if err := json.Unmarshal(data, &payload); err != nil {
 		return nil, fmt.Errorf("%v : %w", err, ErrInvalidPayload)
 	}
