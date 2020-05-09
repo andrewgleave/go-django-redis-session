@@ -44,10 +44,10 @@ func (c *SessionClient) Get(key string) (map[string]interface{}, error) {
 	} else if err != nil {
 		return nil, err
 	}
-	return c.parseSession(val)
+	return c.parse(val)
 }
 
-func (c *SessionClient) parseSession(val string) (map[string]interface{}, error) {
+func (c *SessionClient) parse(val string) (map[string]interface{}, error) {
 	if len(val) == 0 {
 		return nil, ErrEmptySession
 	}

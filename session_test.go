@@ -12,7 +12,7 @@ import (
 func TestParseSession(t *testing.T) {
 	val := "YWFiYjp7ImEiOiJhIn0="
 	c := SessionClient{}
-	p, err := c.parseSession(val)
+	p, err := c.parse(val)
 	if err != nil {
 		t.Errorf("failed to parse session: %v", err)
 	}

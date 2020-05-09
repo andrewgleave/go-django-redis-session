@@ -2,8 +2,6 @@
 
 > Very basic support for retrieving and parsing Django sessions stored in Redis from Go
 
-> Go, Redis, Djagno, Python
-
 This may be extended to support writing to sessions in future.
 
 Supports JSON serialised sessions only.
